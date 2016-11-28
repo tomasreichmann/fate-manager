@@ -19,6 +19,7 @@ class SheetList extends Component {
     let modal = this.props.modalState.isVisible ? "display modal" : null;
     let text = this.props.dictionary;
     const sheets = this.props.sheetListState.sheets;
+
     return <div>
       { modal }
       <h1>Sheets ({this.props.sheetListState.sheets.length})</h1>
@@ -41,11 +42,16 @@ class SheetList extends Component {
   }
 }
 
+SheetList.contextTypes = {
+  router: React.PropTypes.object.isRequired
+};
+
 function displayDeleteCharacterConfirmation(id){
   console.log("displayDeleteCharacterConfirmation", id);
 }
 
 function editCharacter(id){
+  this.context.router.push('/edit/' + encodeURIComponent(id))
   console.log("editCharacter", id);
 }
 
