@@ -30,7 +30,7 @@ class SheetList extends Component {
             <div className="SheetList-item-title" >{item.name}</div>
             <div className="SheetList-item-actions" >
               <button className="edit button" onClick={ editCharacter.bind(this, item.id) } >{text.edit}</button>
-              <button className="delete button button-danger" onClick={ displayDeleteCharacterConfirmation.bind(this, item.id) } >x</button>
+              <button className="delete button button-danger" onClick={ displayDeleteCharacterConfirmation.bind(this, item.id) } >&times;</button>
             </div>
           </div> ) ) }
         </div>

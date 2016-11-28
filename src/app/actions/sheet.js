@@ -1,8 +1,6 @@
 import FireBaseTools from '../utils/firebase';
-import { dispatch } from 'redux';
 import {
   SHEETS_SYNC,
-  SHEET_ADDED,
   SHEETS_ON_VALUE,
   SHEETS_ON_CHILD_ADDED,
   SHEETS_ON_CHILD_REMOVED,
@@ -22,23 +20,26 @@ export function syncSheets(dispatch) {
   console.log("syncSheets");
 
   const ref = FireBaseTools.getDatabaseReference('sheets');
-  ref.on(FIREBASE_EVENTS.CHILD_ADDED, (snapshot) => { dispatch( sheetsOnChildAdded(snapshot) ); } );
+  ref.on(FIREBASE_EVENTS.CHILD_ADDED, (snapshot, previousKey) => { dispatch( sheetsOnChildAdded(snapshot, previousKey) ); } );
   ref.on(FIREBASE_EVENTS.CHILD_REMOVED, (snapshot) => { dispatch( sheetsOnChildRemoved(snapshot) ); } );
   ref.on(FIREBASE_EVENTS.CHILD_CHANGED, (snapshot) => { dispatch( sheetsOnChildChanged(snapshot) ); } );
-  ref.on(FIREBASE_EVENTS.CHILD_MOVED, (snapshot) => { dispatch( sheetsOnChildMoved(snapshot) ) } );
+  ref.on(FIREBASE_EVENTS.CHILD_MOVED, (snapshot, previousKey) => { dispatch( sheetsOnChildMoved(snapshot, previousKey) ) } );
 
   return {
     type: SHEETS_SYNC
   }
 }
 
-export function sheetsOnChildAdded(snapshot){
-  console.log("sheetsOnChildAdded", snapshot, arguments);
+export function sheetsOnChildAdded(snapshot, previousKey){
+  console.log("sheetsOnChildAdded", snapshot, previousKey);
   return {
     type: SHEETS_ON_CHILD_ADDED,
     payload: {
-      ...(snapshot.val()),
-      key: snapshot.key
+      item: {
+        ...(snapshot.val()),
+        key: snapshot.key
+      },
+      previousKey
     }
   }
 }
@@ -61,13 +62,16 @@ export function sheetsOnChildChanged(snapshot){
     }
   }
 }
-export function sheetsOnChildMoved(snapshot){
-  console.log("sheetsOnChildMoved", snapshot);
+export function sheetsOnChildMoved(snapshot, previousKey){
+  console.log("sheetsOnChildMoved", snapshot, previousKey);
   return {
     type: SHEETS_ON_CHILD_MOVED,
     payload: {
-      val: snapshot.val(),
-      key: snapshot.key
+      item: {
+        ...(snapshot.val()),
+        key: snapshot.key
+      },
+      previousKey
     }
   }
 }
