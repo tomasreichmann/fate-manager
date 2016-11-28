@@ -1,10 +1,16 @@
 import { combineReducers } from 'redux';
-import FireBaseUserReducer from './firebaseUserReducer';
-import SheetListReducer from './sheetListReducer';
+import firebaseUserReducer from './firebaseUserReducer';
+import sheetListReducer from './sheetListReducer';
+import dictionaryReducer from './dictionaryReducer';
+import configReducer from './configReducer';
+import modalReducer from './modalReducer';
 
 const rootReducer = combineReducers({
-    currentUser: FireBaseUserReducer,
-    sheetList: SheetListReducer,
+    currentUser: firebaseUserReducer,
+    sheetList: sheetListReducer,
+    dictionary: dictionaryReducer,
+    modal: modalReducer,
+    config: configReducer,
 });
 
 export default rootReducer;
