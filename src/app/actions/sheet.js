@@ -6,6 +6,8 @@ import {
   SHEETS_ON_CHILD_REMOVED,
   SHEETS_ON_CHILD_CHANGED,
   SHEETS_ON_CHILD_MOVED,
+  SHEET_EDIT,
+  SHEET_EDIT_ON_VALUE,
 } from './types';
 
 const FIREBASE_EVENTS = {
@@ -72,6 +74,28 @@ export function sheetsOnChildMoved(snapshot, previousKey){
         key: snapshot.key
       },
       previousKey
+    }
+  }
+}
+
+export function editSheet(dispatch, sheetKey){
+  console.log("editSheet");
+  const ref = FireBaseTools.getDatabaseReference('sheets/'+sheetKey);
+  ref.on(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetOnValue(snapshot) ); } );
+  return {
+    type: SHEET_EDIT
+  }
+}
+
+export function sheetOnValue(snapshot){
+  console.log("sheetOnValue", snapshot);
+  return {
+    type: SHEET_EDIT_ON_VALUE,
+    payload: {
+      sheet: {
+        ...(snapshot.val()),
+        key: snapshot.key
+      }
     }
   }
 }

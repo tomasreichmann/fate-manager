@@ -69,7 +69,6 @@ function addAfter(array, item, previousKey){
 }
 
 export default function (state = initialState, action) {
-  console.log(action.type, action.payload);
   switch (action.type) {
     case SHEETS_SYNC: {
       console.log("SHEETS_SYNC");
