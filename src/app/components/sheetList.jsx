@@ -4,18 +4,17 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchUser } from '../actions/firebase_actions';
 import { syncSheets } from '../actions/sheet';
-import { capitalizeFirstLetter as capFirst } from '../utils/text';
+import { capitalizeFirstLetter as capFirst } from '../utils/utils';
 
 class SheetList extends Component {
 
   componentWillMount() {
-    this.props.fetchUser().then(
-      this.props.syncSheets
-    )
+    this.props.fetchUser().then( ()=>(
+      this.props.syncSheets(this.props.sheetListState.isSynced)
+    ) )
   }
 
   render() {
-    console.log("SheetList props", this.props);
     let modal = this.props.modalState.isVisible ? "display modal" : null;
     let text = this.props.dictionary;
     const sheets = this.props.sheetListState.sheets;
@@ -30,8 +29,8 @@ class SheetList extends Component {
           { sheets.map( (item)=>( <div className="SheetList-item" key={item.key} >
             <div className="SheetList-item-title" >{item.name}</div>
             <div className="SheetList-item-actions" >
-              <button className="edit button" onClick={ editCharacter.bind(this, item.id) } >{text.edit}</button>
-              <button className="delete button button-danger" onClick={ displayDeleteCharacterConfirmation.bind(this, item.id) } >&times;</button>
+              <button className="edit button" onClick={ editCharacter.bind(this, item.key) } >{text.edit}</button>
+              <button className="delete button button-danger" onClick={ displayDeleteCharacterConfirmation.bind(this, item.key) } >&times;</button>
             </div>
           </div> ) ) }
         </div>
@@ -50,9 +49,9 @@ function displayDeleteCharacterConfirmation(id){
   console.log("displayDeleteCharacterConfirmation", id);
 }
 
-function editCharacter(id){
-  this.context.router.push('/edit/' + encodeURIComponent(id))
-  console.log("editCharacter", id);
+function editCharacter(key){
+  this.context.router.push('/edit/' + encodeURIComponent(key))
+  console.log("editCharacter", key);
 }
 
 function newCharacter(){
@@ -65,7 +64,6 @@ function mapDispatchToProps(dispatch) {
 
 
 function mapStateToProps(state) {
-  console.log("mapStateToProps", state);
   return {
     sheetListState: state.sheetList,
     dictionary: state.dictionary[state.config.language],

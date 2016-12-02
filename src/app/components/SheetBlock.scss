@@ -1,0 +1,55 @@
+.SheetBlock {
+  h2, h3 {
+    display: flex;
+    position: relative;
+    background-color: #000;
+    color: #fff;
+    text-transform: uppercase;
+    margin: 0 0 10px 6px;
+    padding-right: 10px;
+    font-size: 14px;
+    line-height: 18px;
+
+    span {
+      flex: 1 0 auto;
+
+      &:last-child {
+        text-align: right;
+      }
+    }
+
+    &:after {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 0;
+      width: 0;
+      height: 100%;
+      border-top: 6px solid transparent;
+      border-right: 6px solid #000;
+    }
+  }
+
+  &-note {
+    display: inline-block;
+    font-size: 10px;
+    line-height: inherit;
+  }
+
+  .Checkbox + .Checkbox {
+    margin-left: 20px;
+  }
+
+  &-superscript {
+    position: absolute;
+    font-size: 1.8rem;
+    font-weight: bold;
+    left: 0;
+    top: 0;
+    font-style: normal;
+    z-index: 1;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, -2px 2px 0 #fff, 2px -2px 0 #fff;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+}

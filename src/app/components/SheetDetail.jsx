@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchUser } from '../actions/firebase_actions';
 import { syncSheets, editSheet } from '../actions/sheet';
-import { capitalizeFirstLetter as capFirst } from '../utils/text';
+import { capitalizeFirstLetter as capFirst } from '../utils/utils';
 import SheetBlock from './SheetBlock';
 
 class SheetDetail extends Component {
@@ -21,13 +21,15 @@ class SheetDetail extends Component {
     const sheets = this.props.sheetListState.sheets;
     const sheetKey = this.props.params.sheetKey;
     const sheet = this.props.sheetDetailState.sheet;
+    const template = sheet ? this.props.templates[sheet.template] : null;
     console.log("SheetDetail", sheetKey, 'props', this.props);
     console.log("SheetDetail sheet", sheet);
+    console.log("SheetDetail template", template);
     let modal = this.props.modalState.isVisible ? "display modal" : null;
     let text = this.props.dictionary;
 
     const sheetDetail = sheet ? (<div className="SheetDetail" >
-      <SheetBlock {...sheet} ></SheetBlock>
+      <SheetBlock {...sheet} dictionary={this.props.dictionary} template={template}></SheetBlock>
     </div>) : null;
 
     return <div>
@@ -53,14 +55,13 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  console.log("mapStateToProps", state);
   return {
     sheetListState: state.sheetList,
     sheetDetailState: state.sheetDetail,
     dictionary: state.dictionary[state.config.language],
+    templates: state.template.map,
     modalState: state.modal
   };
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(SheetDetail);

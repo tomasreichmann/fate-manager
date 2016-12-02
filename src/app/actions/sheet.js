@@ -18,17 +18,22 @@ const FIREBASE_EVENTS = {
   CHILD_MOVED: 'child_moved'
 };
 
-export function syncSheets(dispatch) {
+export function syncSheets(dispatch, isSynced) {
   console.log("syncSheets");
 
-  const ref = FireBaseTools.getDatabaseReference('sheets');
-  ref.on(FIREBASE_EVENTS.CHILD_ADDED, (snapshot, previousKey) => { dispatch( sheetsOnChildAdded(snapshot, previousKey) ); } );
-  ref.on(FIREBASE_EVENTS.CHILD_REMOVED, (snapshot) => { dispatch( sheetsOnChildRemoved(snapshot) ); } );
-  ref.on(FIREBASE_EVENTS.CHILD_CHANGED, (snapshot) => { dispatch( sheetsOnChildChanged(snapshot) ); } );
-  ref.on(FIREBASE_EVENTS.CHILD_MOVED, (snapshot, previousKey) => { dispatch( sheetsOnChildMoved(snapshot, previousKey) ) } );
+  if(!isSynced){
+    const ref = FireBaseTools.getDatabaseReference('sheets');
+    ref.on(FIREBASE_EVENTS.CHILD_ADDED, (snapshot, previousKey) => { dispatch( sheetsOnChildAdded(snapshot, previousKey) ); } );
+    ref.on(FIREBASE_EVENTS.CHILD_REMOVED, (snapshot) => { dispatch( sheetsOnChildRemoved(snapshot) ); } );
+    ref.on(FIREBASE_EVENTS.CHILD_CHANGED, (snapshot) => { dispatch( sheetsOnChildChanged(snapshot) ); } );
+    ref.on(FIREBASE_EVENTS.CHILD_MOVED, (snapshot, previousKey) => { dispatch( sheetsOnChildMoved(snapshot, previousKey) ) } );
 
+    return {
+      type: SHEETS_SYNC
+    }
+  }
   return {
-    type: SHEETS_SYNC
+    type: null
   }
 }
 
@@ -81,7 +86,7 @@ export function sheetsOnChildMoved(snapshot, previousKey){
 export function editSheet(dispatch, sheetKey){
   console.log("editSheet");
   const ref = FireBaseTools.getDatabaseReference('sheets/'+sheetKey);
-  ref.on(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetOnValue(snapshot) ); } );
+  ref.once(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetOnValue(snapshot) ); } );
   return {
     type: SHEET_EDIT
   }

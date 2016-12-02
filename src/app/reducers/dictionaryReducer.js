@@ -36,7 +36,7 @@ const initialState = {
     medicine: 'medicína',
     perception: 'všímavost',
     physique: 'fyzická zdatnost',
-    piloting: 'pilotování',
+    pilot: 'pilotování',
     provoke: 'provokace',
     resources: 'zdroje',
     science: 'věda',
