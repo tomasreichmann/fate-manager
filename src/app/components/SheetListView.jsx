@@ -6,7 +6,7 @@ import { fetchUser } from '../actions/firebase_actions';
 import { syncSheets } from '../actions/sheet';
 import { capitalizeFirstLetter as capFirst } from '../utils/utils';
 
-class SheetList extends Component {
+class SheetListView extends Component {
 
   componentWillMount() {
     this.props.fetchUser().then( ()=>(
@@ -23,11 +23,11 @@ class SheetList extends Component {
       { modal }
       <h1>Sheets ({this.props.sheetListState.sheets.length})</h1>
 
-      <div className="SheetList" >
+      <div className="SheetListView" >
         <h2>{capFirst(text.characters)}</h2>
-        <div className="SheetList-list" >
+        <div className="SheetList" >
           { sheets.map( (item)=>( <div className="SheetList-item" key={item.key} >
-            <div className="SheetList-item-title" >{item.name}</div>
+            <div className="SheetList-item-title" ><Link to={ "/block/" + item.key } >{item.name}</Link></div>
             <div className="SheetList-item-actions" >
               <button className="edit button" onClick={ editCharacter.bind(this, item.key) } >{text.edit}</button>
               <button className="delete button button-danger" onClick={ displayDeleteCharacterConfirmation.bind(this, item.key) } >&times;</button>
@@ -41,7 +41,7 @@ class SheetList extends Component {
   }
 }
 
-SheetList.contextTypes = {
+SheetListView.contextTypes = {
   router: React.PropTypes.object.isRequired
 };
 
@@ -72,4 +72,4 @@ function mapStateToProps(state) {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(SheetList);
+export default connect(mapStateToProps, mapDispatchToProps)(SheetListView);

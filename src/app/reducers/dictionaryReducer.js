@@ -23,6 +23,8 @@ const initialState = {
     trouble: 'trable',
     consequences: 'následky',
 
+    viewAsBlock: 'Zobrazit jako blok',
+
     // skills
     artillery: 'artilérie',
     athletics: 'atletika',

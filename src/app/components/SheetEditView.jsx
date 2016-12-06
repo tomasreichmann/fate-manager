@@ -6,8 +6,9 @@ import { fetchUser } from '../actions/firebase_actions';
 import { syncSheets, editSheet } from '../actions/sheet';
 import { capitalizeFirstLetter as capFirst } from '../utils/utils';
 import SheetBlock from './SheetBlock';
+import Loading from './Loading';
 
-class SheetDetail extends Component {
+class SheetEditView extends Component {
 
   componentWillMount() {
     // TODO: get id from path
@@ -22,9 +23,9 @@ class SheetDetail extends Component {
     const sheetKey = this.props.params.sheetKey;
     const sheet = this.props.sheetDetailState.sheet;
     const template = sheet ? this.props.templates[sheet.template] : null;
-    console.log("SheetDetail", sheetKey, 'props', this.props);
-    console.log("SheetDetail sheet", sheet);
-    console.log("SheetDetail template", template);
+    console.log("SheetEditView", sheetKey, 'props', this.props);
+    console.log("SheetEditView sheet", sheet);
+    console.log("SheetEditView template", template);
     let modal = this.props.modalState.isVisible ? "display modal" : null;
     let text = this.props.dictionary;
 
@@ -34,15 +35,16 @@ class SheetDetail extends Component {
 
     return <div>
       { modal }
-      <h1>{ sheet ? sheet.name : 'Loading...' }</h1>
 
       { sheetDetail }
-
+      <Loading show={!sheet} >Loading...</Loading>
+      <hr />
+      { sheet ? <Link className="btn btn-primary" to={"/block/" + sheet.key}>{ capFirst(text.viewAsBlock) }</Link> : null }
     </div>;
   }
 }
 
-SheetDetail.contextTypes = {
+SheetEditView.contextTypes = {
   router: React.PropTypes.object.isRequired
 };
 
@@ -64,4 +66,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SheetDetail);
+export default connect(mapStateToProps, mapDispatchToProps)(SheetEditView);
