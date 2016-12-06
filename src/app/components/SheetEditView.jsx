@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { fetchUser } from '../actions/firebase_actions';
 import { syncSheets, editSheet } from '../actions/sheet';
 import { capitalizeFirstLetter as capFirst } from '../utils/utils';
-import SheetBlock from './SheetBlock';
+import SheetEditor from './SheetEditor';
 import Loading from './Loading';
 
 class SheetEditView extends Component {
@@ -30,7 +30,7 @@ class SheetEditView extends Component {
     let text = this.props.dictionary;
 
     const sheetDetail = sheet ? (<div className="SheetDetail" >
-      <SheetBlock {...sheet} dictionary={this.props.dictionary} template={template}></SheetBlock>
+      <SheetEditor {...sheet} dictionary={this.props.dictionary} template={template}></SheetEditor>
     </div>) : null;
 
     return <div>

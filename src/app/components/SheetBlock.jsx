@@ -72,14 +72,14 @@ export default function SheetBlock({ template, dictionary: text, onStressChange 
     } )}</div>
   ) : null;
 
-  const consequenceBlock = template.consequences && template.consequences.length ? (
+  const consequenceBlock = template.consequences && template.consequences.list.length ? (
     <div className="SheetBlock-consequences" >
       <h2>{text.consequences}</h2>
       <div>{template.consequences.list.map( (consequence, index)=>(
-        <label key={consequence.key} className={"input-wrap" + (index >= maxConsequences ? " disabled" : "")}>
+        <label key={consequence.key} className={"SheetBlock-consequence" + (index >= maxConsequences ? " disabled" : "")}>
           <i className="SheetBlock-superscript" >{consequence.val}</i>
-          <span>{consequence.label}</span>
-          {getUnsavedCharacterInput("text",consequence.key, character)}
+          <span>{capFirst(text[consequence.label])}</span>
+          {getInput("text",consequence.key, sheet)}
         </label>
       ) )}</div>
     </div>
