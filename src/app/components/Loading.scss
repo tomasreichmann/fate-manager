@@ -18,6 +18,15 @@
     text-align: center;
   }
 
+  &--randomize {
+    display: inline-block;
+    transform-style: preserve-3d;
+  }
+
+  &--randomize + &--randomize {
+    margin-left: 20px;
+  }
+
   &-die {
     display: inline-block;
     position: relative;
@@ -27,19 +36,22 @@
   }
 
   &-die + &-die {
-    margin-left: 20px;
-  }
-
-  &-die-minus {
-    animation: dice-roll-minus 2s;
+    margin-left: 40px;
   }
 
   &-die-plus {
     animation: dice-roll-plus 2s;
+    transform: rotate3d(1,1,1,360deg);
   }
 
   &-die-null {
     animation: dice-roll-null 2s;
+    transform: rotate3d(1,1,1,240deg);
+  }
+
+  &-die-minus {
+    animation: dice-roll-minus 2s;
+    transform: rotate3d(1,1,1,120deg);
   }
 
   &-die-face {
@@ -81,7 +93,7 @@
       }
       &:after {
         content: "–";
-        transform: translateY(20px) rotateX(-90deg);
+        transform: translateY(20px) rotateX(-90deg)  rotateZ(90deg);
       }
     }
     &-y {
@@ -125,28 +137,28 @@
 
 @keyframes dice-roll-plus {
   0% {
-    transform: rotate3d(1,1,1,0deg);
+    transform: translate3d(-80px, 80px, 0) rotate3d(1,1,1,0deg);
   }
   50%, 100% {
-    transform: rotate3d(1,1,1,360deg);
+    transform: translate3d(0, 0, 0) rotate3d(1,1,1,360deg);
   }
 }
 
 @keyframes dice-roll-null {
   0% {
-    transform: rotate3d(1,1,1,-120deg);
+    transform: translate3d(-80px, 80px, 0) rotate3d(1,1,1,-120deg);
   }
   50%, 100% {
-    transform: rotate3d(1,1,1,240deg);
+    transform: translate3d(0, 0, 0) rotate3d(1,1,1,240deg);
   }
 }
 
 @keyframes dice-roll-minus {
   0% {
-    transform: rotate3d(1,1,1,-240deg);
+    transform: translate3d(-80px, 80px, 0) rotate3d(1,1,1,-240deg);
   }
   50%, 100% {
-    transform: rotate3d(1,1,1,120deg);
+    transform: translate3d(0, 0, 0) rotate3d(1,1,1,120deg);
   }
 }
 

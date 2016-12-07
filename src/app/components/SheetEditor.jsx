@@ -98,7 +98,7 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
 
         </div>
       </div>
-      <div className="col-xs-12 col-sm-4 logo mb-sm">
+      <div className="hidden-xs col-sm-4 logo mb-sm">
         <img src="http://3.bp.blogspot.com/-bJjDZ-FtpHQ/ULRW6uKF3JI/AAAAAAAAAh8/PRrdYkH2fi8/s1600/Fate%2BCore%2BCover.png" alt="FATE core system" />
       </div>
 
