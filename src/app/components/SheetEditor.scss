@@ -5,6 +5,11 @@
   background-color: #fff;
   font-size: 10px;
 
+  .Select {
+    width:100%;
+    max-width:90%;
+  }
+
   h2 {
     @include heading;
   }
@@ -180,6 +185,10 @@
   }
 
   .aspects label {
+    margin-bottom: 5px;
+  }
+
+  &-stunts label {
     margin-bottom: 5px;
   }
 

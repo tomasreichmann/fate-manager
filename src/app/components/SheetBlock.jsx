@@ -15,7 +15,7 @@ function handleChange(newVal){
 }
 
 export default function SheetBlock({ template, dictionary: text, onStressChange = ()=>{}, ...sheet }){
-  const { name, aspects, skills, refresh, stunts } = sheet;
+  const { name, aspects, skills, refresh, stunts, extras } = sheet;
 
   let aspectSpans = [];
   "main" in aspects && aspectSpans.push(<strong className="SheetBlock-aspects-main" key="SheetBlock-aspects-main" >{ aspects.main }</strong>);
@@ -56,6 +56,11 @@ export default function SheetBlock({ template, dictionary: text, onStressChange 
     {stunts.map( (stunt, index)=>( <p key={"stunt-"+index} >{stunt}</p> ) )}
   </div> : null;
 
+  const extrasBlock = extras && extras.length ? <div className="SheetBlock-extras" >
+    <h3>{capFirst(text.extras)} <span className="SheetBlock-note" >{extras.length}</span></h3>
+    {extras.map( (extra, index)=>( <p key={"extra-"+index} >{extra}</p> ) )}
+  </div> : null;
+
   const stressBlock = template.stress && template.stress.length ? (
     <div className="SheetBlock-stress" >{template.stress.map( (stress)=>{
       let maxStress = stress.def;
@@ -90,6 +95,7 @@ export default function SheetBlock({ template, dictionary: text, onStressChange 
     {aspectBlock}
     {skillBlock}
     {stuntsBlock}
+    {extrasBlock}
     {stressBlock}
     {consequenceBlock}
   </div>);

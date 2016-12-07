@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { capitalizeFirstLetter as capFirst, seq, getIn, intersperse } from '../utils/utils';
 import Input from './Input';
 import Checkbox from './Checkbox';
+import Select from './Select';
 
 function getInput(type, path, data, def){
   const val = def || getIn(data, path);
@@ -9,79 +10,70 @@ function getInput(type, path, data, def){
 };
 
 function handleChange(newVal){
-
+  console.log("new val", newVal);
 }
 
 export default function SheetEditor({ template, dictionary: text, onStressChange = ()=>{}, ...sheet }){
-  const { name, aspects, skills, refresh, stunts } = sheet;
-
-  let aspectSpans = [];
-  "main" in aspects && aspectSpans.push(<strong className="SheetEditor-aspects-main" key="SheetEditor-aspects-main" >{ aspects.main }</strong>);
-  "trouble" in aspects && aspectSpans.push(<span className="SheetEditor-aspects-trouble" key="SheetEditor-aspects-trouble" >{ aspects.trouble }</span>);
-  "3" in aspects && aspectSpans.push(<span className="SheetEditor-aspects-3" key="SheetEditor-aspects-3" >{ aspects[3] }</span>);
-  "4" in aspects && aspectSpans.push(<span className="SheetEditor-aspects-4" key="SheetEditor-aspects-4" >{ aspects[4] }</span>);
-  "5" in aspects && aspectSpans.push(<span className="SheetEditor-aspects-5" key="SheetEditor-aspects-5" >{ aspects[5] }</span>);
-
-  const aspectBlock = aspectSpans.length && Object.keys(aspects).length > 0 ? (
-    <p className="SheetEditor-aspects" >
-    {intersperse(aspectSpans,', ')}
-    </p>
-  ) : null;
+  const { name, aspects, skills, refresh, stunts, extras } = sheet;
 
   const bonusConsequences = (template.consequences.skills.reduce((maxLevel, skill)=>(
     Math.max( maxLevel, sheet.skills[skill] || 0 )
   ), 0 ) >= template.consequences.bonusSkillLevel)*1;
 
-  const refreshNote = refresh ? <span className="SheetEditor-note" >{capFirst(text.refresh)}: {refresh}</span> : null;
-
-  const skillList = Object.keys(skills)
-    .sort( (skillA, skillB)=>(
-      skills[skillB] - skills[skillA] || ~~(skillA > skillB)
-    ) )
-    .map( (skill)=>( text[skill] + ' ' + skills[skill] ) )
-    .join(', ')
-  ;
-  const totalSkillLevels = Object.keys(skills).reduce( (result, skill)=>( result += skills[skill] ), 0 )
-  const skillBlock = totalSkillLevels > 0 ? <div className="SheetEditor-skills" >
-    <h3>{capFirst(text.skills)} <span className="SheetEditor-note" >{totalSkillLevels}</span></h3>
-    <p>{skillList}</p>
-  </div> : null;
-
   const maxConsequences = template.consequences.defaultCount + bonusConsequences;
 
-  const stuntsBlock = stunts && stunts.length ? <div className="SheetEditor-stunts" >
-    <h3>{capFirst(text.stunts)} <span className="SheetEditor-note" >{stunts.length}</span></h3>
-    {stunts.map( (stunt, index)=>( <p key={"stunt-"+index} >{stunt}</p> ) )}
+  const totalSkillLevels = Object.keys(skills).reduce( (result, skill)=>( result += skills[skill] ), 0 )
+  const skillsPerLevel = Object.keys(sheet.skills).reduce( (skillsPerLevel, skill) => {
+    const skillLevel = sheet.skills[skill];
+    skillsPerLevel[skillLevel] = (skillsPerLevel[skillLevel] || []).concat([skill]);
+    return skillsPerLevel;
+  }, {});
+  const skillOptions = [{
+    label: '-',
+    value: null
+  }].concat( template.skillList.map( (skill) => ({
+    label: text[skill],
+    value: skill
+  })));
+  const skillBlock = totalSkillLevels > 0 ? <div className="SheetEditor-skills" >
+    { template.skillLevels.map( (levelName, index) => {
+      const level = template.skillLevels.length - index;
+      const levelSkills = (skillsPerLevel[level] || []).sort( (skillA, skillB)=>(
+        text[skillA] > text[skillB]
+      ) );
+      return <div className="row" >
+        { levelSkills.map( (skill) => {
+          const inputState = '';
+          const currentPath = 'skills.'+skill;
+          return <div className="col-xs-12 col-sm-2">
+            <Select className={inputState} options={ skillOptions } handleChange={ handleChange.bind(this, skill, level) } value={skill} ></Select>
+          </div>;
+        }) }
+        { levelSkills.length < template.skillLevels.length ? <div className="col-xs-12 col-sm-2">
+          <Select options={ skillOptions } handleChange={ handleChange.bind(this, null, level) } value={null} ></Select>
+        </div> : null }
+      </div>;
+      // TODO: promote skill
+    } )}
   </div> : null;
 
-  const stressBlock = template.stress && template.stress.length ? (
-    <div className="SheetEditor-stress" >{template.stress.map( (stress)=>{
-      let maxStress = stress.def;
-      if(stress.skill in skills){
-        maxStress = maxStress + (skills[stress.skill] >= 3 ? 2 : 1);
-      }
-      return <div className="stressLane" key={"stressLane-"+stress.label} ><h2><span>{text[stress.label]}</span> <span className="SheetEditor-note">({text[stress.skill]})</span></h2>
-        <div className="stress">
-        { seq(stress.count).map( (stressBox, index)=>(
-          <Checkbox key={"stressBox-"+index} label={ <span className="SheetEditor-superscript" >{index+1}</span> } disabled={index >= maxStress} />
-        ) ) }
-        </div>
-      </div>
-    } )}</div>
-  ) : null;
+  const nextStuntIndex = stunts && stunts.length && (stunts.length + 1) || 0;
+  const stuntBlock = <div className="SheetEditor-stunts col-xs-12 col-sm-6">
+    <h2>{text.stunts}</h2>
+    {stunts ? stunts.map( (stunt, index)=>(
+      <label className="input-wrap" key={"stunt-"+index} >{getInput("text", "stunts."+index, sheet)}</label>
+    ) ) : null}
+    <label className="input-wrap" key={"stunt-"+nextStuntIndex} >{getInput("text", "stunts."+nextStuntIndex, sheet)}</label>
+  </div>;
 
-  const consequenceBlock = template.consequences && template.consequences.length ? (
-    <div className="SheetEditor-consequences" >
-      <h2>{text.consequences}</h2>
-      <div>{template.consequences.list.map( (consequence, index)=>(
-        <label key={consequence.key} className={"input-wrap" + (index >= maxConsequences ? " disabled" : "")}>
-          <i className="SheetEditor-superscript" >{consequence.val}</i>
-          <span>{consequence.label}</span>
-          {getInput("text",consequence.key, sheet)}
-        </label>
-      ) )}</div>
-    </div>
-  ) : null;
+  const nextExtrasIndex = extras && extras.length && (extras.length + 1) || 0;
+  const extrasBlock = <div className="SheetEditor-extras col-xs-12 col-sm-6">
+    <h2>{text.extras}</h2>
+    {extras ? extras.map( (stunt, index)=>(
+      <label className="input-wrap" key={"extra-"+index} >{getInput("text", "extras."+index, sheet)}</label>
+    ) ) : null}
+    <label className="input-wrap" key={"extra-"+nextExtrasIndex} >{getInput("text", "extras."+nextExtrasIndex, sheet)}</label>
+  </div>;
 
   return (<div className="SheetEditor" >
     <div className="row mb-sm">
@@ -114,6 +106,9 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
       </div>
       <div className="col-xs-12 col-sm-7 skills">
         <h2>{text.skills}</h2>
+
+        { skillBlock }
+
         { false && seq(template.skillLevels).reverse().map( (level) =>{
           return <div className="row">
             <div className="col-xs-12 col-sm-2">{template.challengeLevels[level]}&nbsp;(+{level+1})</div>
@@ -140,14 +135,8 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
       </div>
     </div>
     <div className="row mb">
-      <div className="col-xs-12 col-sm-6">
-        <h2>{text.extras}</h2>
-        <div className="extras" >{getInput("textarea", "extras", sheet)}</div>
-      </div>
-      <div className="col-xs-12 col-sm-6">
-        <h2>{text.stunts}</h2>
-        <div className="stunts" >{getInput("textarea", "stunts", sheet)}</div>
-      </div>
+      {extrasBlock}
+      {stuntBlock}
     </div>
     <div className="row">
       <div className="col-xs-12 col-sm-4">
@@ -171,14 +160,6 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
           <label key={consequence.key} className={"input-wrap" + (index >= maxConsequences ? " disabled" : "")}><i className="superscript" >{consequence.val}</i><span>{consequence.label}</span>{getInput("text",consequence.key, sheet)}</label>
           ) )}</div>
       </div>
-    </div>;
-
-
-
-    {aspectBlock}
-    {skillBlock}
-    {stuntsBlock}
-    {stressBlock}
-    {consequenceBlock}
+    </div>
   </div>);
 }

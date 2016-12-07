@@ -36,7 +36,7 @@ const initialState = {
     fight: 'boj',
     investigate: 'vyšetřování',
     medicine: 'medicína',
-    perception: 'všímavost',
+    notice: 'všímavost',
     physique: 'fyzická zdatnost',
     pilot: 'pilotování',
     provoke: 'provokace',
