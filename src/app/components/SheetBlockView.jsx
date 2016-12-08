@@ -39,7 +39,7 @@ class SheetBlockView extends Component {
       <Loading show={!sheet} >Loading...</Loading>
       { sheetBlock }
       <hr />
-      { sheet ? <Link className="btn btn-primary" to={"/edit/" + sheet.key}>{ capFirst(text.edit) }</Link> : null }
+      { sheet ? <Link className="button button-primary" to={"/edit/" + sheet.key}>{ capFirst(text.edit) }</Link> : null }
     </div>;
   }
 }

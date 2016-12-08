@@ -3,10 +3,13 @@ import {
   SHEET_EDIT,
   SHEET_EDIT_ON_VALUE,
   SHEET_HANDLE_CHANGE,
+  SHEET_SAVE_UPDATES,
+  SHEET_CANCEL_UPDATES
 } from '../actions/types';
 
 const initialState = {
-  unsaved: {}
+  unsaved: {},
+  conflicted: {}
 }
 
 export default function (state = initialState, action) {
@@ -15,20 +18,30 @@ export default function (state = initialState, action) {
       console.log("SHEET_EDIT");
       return state;
     }
+
     case SHEET_EDIT_ON_VALUE: {
-      console.log("SHEET_EDIT_ON_VALUE", "action", action, "state", state);
-      const sheet = action.payload.sheet;
-      // TODO handle editing conflict
+      console.log(action.type, "action", action, "state", state);
+      const sheetKey = action.payload.sheet.key;
+      const unsavedSheet = state.unsaved[sheetKey];
+      const savedSheet = action.payload.sheet;
+      const conflicted = unsavedSheet ? {
+        ...state.conflicted,
+        [sheetKey]: savedSheet
+      } : state.conflicted;
+      const unsaved = unsavedSheet ? state.unsaved : {
+        ...state.unsaved,
+        [sheetKey]: savedSheet
+      };
+
       return {
         ...state,
-        unsaved: {
-          ...state.unsaved,
-          [sheet.key]: sheet
-        }
+        unsaved,
+        conflicted
       };
     }
+
     case SHEET_HANDLE_CHANGE: {
-      console.log("SHEET_HANDLE_CHANGE", "action", action, "state", state);
+      console.log(action.type, "action", action, "state", state);
       const value = action.payload.value;
       const key = action.payload.key;
       const path = action.payload.path;
@@ -41,6 +54,21 @@ export default function (state = initialState, action) {
           ...state.unsaved,
           [key]: Immutable.fromJS(newSheet).setIn(path.split("."), value).toJS()
         }
+      };
+    }
+
+    case SHEET_SAVE_UPDATES:
+    case SHEET_CANCEL_UPDATES: {
+      console.log(action.type, "action", action, "state", state);
+      const key = action.payload.key;
+      const conflicted = { ...state.conflicted };
+      const unsaved = { ...state.unsaved };
+      delete unsaved[key];
+      delete conflicted[key];
+      return {
+        ...state,
+        unsaved,
+        conflicted
       };
     }
   }

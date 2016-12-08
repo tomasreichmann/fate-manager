@@ -6,13 +6,20 @@ import Select from './Select';
 
 
 export default function SheetEditor({ template, dictionary: text, handleChange = ()=>{}, ...sheet }){
+  const { name, aspects, skills, refresh, stunts, extras } = sheet;
+
+  const handleSkillChange = (level, index, levelSkills, value)=>{
+    console.log("handleSkillChange");
+    const newSkills = skills;
+    // TODO
+    // return handleChange('skills', newSkills);
+  }
 
   function getInput(type, path, data, def){
     const val = def || getIn(data, path);
     return <Input type={type} handleChange={handleChange.bind(this, path)} val={val} />;
   };
 
-  const { name, aspects, skills, refresh, stunts, extras } = sheet;
 
   const bonusConsequences = (template.consequences.skills.reduce((maxLevel, skill)=>(
     Math.max( maxLevel, sheet.skills[skill] || 0 )
@@ -40,15 +47,15 @@ export default function SheetEditor({ template, dictionary: text, handleChange =
         text[skillA] > text[skillB]
       ) );
       return <div className="row" key={ "skillLevel-"+level }>
-        { levelSkills.map( (skill) => {
+        { levelSkills.map( (skill, index) => {
           const inputState = '';
           const currentPath = 'skills.'+skill;
           return <div className="col-xs-12 col-sm-2" key={ "skill-"+skill }>
-            <Select className={inputState} options={ skillOptions } handleChange={ handleChange.bind(this, skill, level) } value={skill} ></Select>
+            <Select className={inputState} options={ skillOptions } handleChange={ handleSkillChange.bind(this, level, index, levelSkills) } value={skill} ></Select>
           </div>;
         }) }
         { levelSkills.length < template.skillLevels.length ? <div className="col-xs-12 col-sm-2" key="skill-more" >
-          <Select options={ skillOptions } handleChange={ handleChange.bind(this, null, level) } value={null} ></Select>
+          <Select options={ skillOptions } handleChange={ handleSkillChange.bind(this, level, levelSkills.length, levelSkills) } value={null} ></Select>
         </div> : null }
       </div>;
       // TODO: promote skill

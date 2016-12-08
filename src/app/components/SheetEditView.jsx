@@ -17,7 +17,8 @@ class SheetEditView extends Component {
 
   componentWillMount() {
     this.props.fetchUser().then( ()=>{
-      return this.props.editSheet(this.sheetKey, this.sheet);
+      console.log("componentWillMount sheet", this.props.sheet);
+      return this.props.editSheet(this.sheetKey);
     } );
   }
 
@@ -38,8 +39,9 @@ class SheetEditView extends Component {
       { sheetEditorBlock }
       <hr />
       { sheet ? <div className="SheetEditView-buttons">
-        <button key="button-cancel" className="btn btn-danger" onClick={this.cancel.bind(this, this.sheetKey)} >{ capFirst(text.cancel) }</button>
-        <button key="button-save" className="btn btn-primary" onClick={this.save.bind(this, this.sheetKey)} >{ capFirst(text.save) }</button>
+        <button key="button-cancel" className="button button-danger" onClick={this.cancel.bind(this, this.sheetKey)} >{ capFirst(text.dropUpdates) }</button>
+        <Link key="button-warning" className="button button-warning" to="/" >{ capFirst(text.leaveWithoutSaving) }</Link>
+        <button key="button-save" className="button button-primary" onClick={this.save.bind(this, sheet)} >{ capFirst(text.save) }</button>
       </div> : null }
     </div>;
   }
@@ -50,10 +52,10 @@ class SheetEditView extends Component {
     this.context.router.push('/');
   }
 
-  save(sheetKey){
-    console.log("save", sheetKey);
-    this.props.saveUpdates(sheetKey);
-    this.context.router.push('/block/'+sheetKey);
+  save(sheet){
+    console.log("save", sheet);
+    this.props.saveUpdates(sheet);
+    this.context.router.push('/block/'+sheet.key);
   }
 
   handleChange(key, path, value){
@@ -69,16 +71,19 @@ SheetEditView.contextTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     syncSheets: syncSheets.bind(this, dispatch),
-    editSheet: editSheet.bind(this, dispatch ),
-    cancelUpdates: cancelUpdates.bind(this, dispatch),
+    editSheet: editSheet.bind(this, dispatch),
     saveUpdates: saveUpdates.bind(this, dispatch),
+    cancelUpdates,
     handleChange,
     fetchUser
   }, dispatch);
 }
 
 function mapStateToProps(state, ownProps) {
-  const sheet = state.sheetEdit.unsaved[ownProps.params.sheetKey];
+  const sheetKey = ownProps.params.sheetKey;
+  const sheet = state.sheetEdit.unsaved[sheetKey];
+  const conflictedSheet = state.sheetEdit.conflicted[sheetKey];
+  console.log("mapStateToProps sheet", sheet);
   return {
     sheet,
     template: sheet ? state.template.map[sheet.template] : null,

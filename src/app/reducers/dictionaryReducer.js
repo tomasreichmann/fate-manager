@@ -7,6 +7,7 @@ const initialState = {
     clear: 'vymazat',
     confirm: 'OK',
     cancel: 'zrušit',
+    dropUpdates: 'zahodit změny',
     save: 'uložit',
     edit: 'upravit',
     new: 'nový',
@@ -23,7 +24,8 @@ const initialState = {
     trouble: 'trable',
     consequences: 'následky',
 
-    viewAsBlock: 'Zobrazit jako blok',
+    viewAsBlock: 'zobrazit jako blok',
+    leaveWithoutSaving: 'odejít bez ukládání',
 
     // skills
     artillery: 'artilérie',

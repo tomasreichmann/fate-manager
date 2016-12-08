@@ -57,6 +57,16 @@ body {
       border-color: transparent #a00;
     }
   }
+  &-warning {
+    background-color: #d80;
+    border-color: #d80;
+    &:hover {
+      color: #d80;
+    }
+    &:before {
+      border-color: transparent #d80;
+    }
+  }
   &-primary {
     background-color: #00a;
     border-color: #00a;

@@ -86,9 +86,9 @@ export function sheetsOnChildMoved(snapshot, previousKey){
   }
 }
 
-export function editSheet(dispatch, sheetKey){
+export function editSheet(dispatch, key){
   console.log("editSheet");
-  const ref = FireBaseTools.getDatabaseReference('sheets/'+sheetKey);
+  const ref = FireBaseTools.getDatabaseReference('sheets/'+key);
   ref.once(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetOnValue(snapshot) ); } );
   return {
     type: SHEET_EDIT
@@ -120,17 +120,19 @@ export function sheetOnValue(snapshot){
   }
 }
 
-export function saveUpdates(dispatch, key){
-  console.log("saveUpdates", key);
+export function saveUpdates(dispatch, sheet){
+  console.log("saveUpdates", sheet);
+  const ref = FireBaseTools.getDatabaseReference('sheets/'+sheet.key);
+  ref.set(sheet);
   return {
     type: SHEET_SAVE_UPDATES,
     payload: {
-      key
+      key: sheet.key
     }
   }
 }
 
-export function cancelUpdates(dispatch, key){
+export function cancelUpdates(key){
   console.log("cancelUpdates", key);
   return {
     type: SHEET_CANCEL_UPDATES,
