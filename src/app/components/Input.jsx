@@ -39,7 +39,7 @@ export default class Input extends Component {
   }
 
   handleChange(event) {
-    this.props.handleChange(event.target.value);
+    this.props.handleChange(this.props.type === "checkbox" ? event.target.checked : event.target.value);
   }
 
   render() {

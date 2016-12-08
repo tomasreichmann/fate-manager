@@ -26,28 +26,24 @@ function addAfter(array, item, previousKey){
 export default function (state = initialState, action) {
   switch (action.type) {
     case SHEETS_SYNC: {
-      console.log("SHEETS_SYNC");
       return {
         ...state,
         isSynced: true
       };
     }
     case SHEETS_ON_CHILD_ADDED: {
-      // console.log("SHEETS_ON_CHILD_ADDED", "action", action, "state", state);
       return {
         ...state,
         sheets: addAfter(state.sheets, action.payload.item, action.payload.previousKey)
       };
     }
     case SHEETS_ON_CHILD_REMOVED: {
-      // console.log("SHEETS_ON_CHILD_REMOVED", "action", action, "state", state);
       return {
         ...state,
         sheets: state.sheets.filter( (item)=>( item.key != action.payload.key ) )
       };
     }
     case SHEETS_ON_CHILD_CHANGED: {
-      console.log("SHEETS_ON_CHILD_CHANGED", "action", action, "state", state);
 
       const itemIndex = state.sheets.reduce( (result, item, index)=>{
         if( result == null && item.key === action.payload.key ){
@@ -65,7 +61,6 @@ export default function (state = initialState, action) {
       };
     }
     case SHEETS_ON_CHILD_MOVED: {
-      // console.log("SHEETS_ON_CHILD_MOVED", "action", action, "state", state);
       const itemIndex = state.sheets.indexOf(action.payload.key);
       const filteredArray = state.sheets.filter( (item)=>( item.key != action.payload.key ) );
 

@@ -1,17 +1,6 @@
 import FireBaseTools from '../utils/firebase';
-import {
-  SHEETS_SYNC,
-  SHEETS_ON_VALUE,
-  SHEETS_ON_CHILD_ADDED,
-  SHEETS_ON_CHILD_REMOVED,
-  SHEETS_ON_CHILD_CHANGED,
-  SHEETS_ON_CHILD_MOVED,
-  SHEET_EDIT,
-  SHEET_HANDLE_CHANGE,
-  SHEET_EDIT_ON_VALUE,
-  SHEET_SAVE_UPDATES,
-  SHEET_CANCEL_UPDATES,
-} from './types';
+import Immutable from 'immutable';
+import * as TYPES from './types';
 
 const FIREBASE_EVENTS = {
   VALUE: 'value',
@@ -32,7 +21,7 @@ export function syncSheets(dispatch, isSynced) {
     ref.on(FIREBASE_EVENTS.CHILD_MOVED, (snapshot, previousKey) => { dispatch( sheetsOnChildMoved(snapshot, previousKey) ) } );
 
     return {
-      type: SHEETS_SYNC
+      type: TYPES.SHEETS_SYNC
     }
   }
   return {
@@ -43,7 +32,7 @@ export function syncSheets(dispatch, isSynced) {
 export function sheetsOnChildAdded(snapshot, previousKey){
   console.log("sheetsOnChildAdded", snapshot, previousKey);
   return {
-    type: SHEETS_ON_CHILD_ADDED,
+    type: TYPES.SHEETS_ON_CHILD_ADDED,
     payload: {
       item: {
         ...(snapshot.val()),
@@ -56,7 +45,7 @@ export function sheetsOnChildAdded(snapshot, previousKey){
 export function sheetsOnChildRemoved(snapshot){
   console.log("sheetsOnChildRemoved", snapshot);
   return {
-    type: SHEETS_ON_CHILD_REMOVED,
+    type: TYPES.SHEETS_ON_CHILD_REMOVED,
     payload: {
       key: snapshot.key
     }
@@ -65,7 +54,7 @@ export function sheetsOnChildRemoved(snapshot){
 export function sheetsOnChildChanged(snapshot){
   console.log("sheetsOnChildChanged", snapshot);
   return {
-    type: SHEETS_ON_CHILD_CHANGED,
+    type: TYPES.SHEETS_ON_CHILD_CHANGED,
     payload: {
       val: snapshot.val(),
       key: snapshot.key
@@ -75,7 +64,7 @@ export function sheetsOnChildChanged(snapshot){
 export function sheetsOnChildMoved(snapshot, previousKey){
   console.log("sheetsOnChildMoved", snapshot, previousKey);
   return {
-    type: SHEETS_ON_CHILD_MOVED,
+    type: TYPES.SHEETS_ON_CHILD_MOVED,
     payload: {
       item: {
         ...(snapshot.val()),
@@ -86,19 +75,62 @@ export function sheetsOnChildMoved(snapshot, previousKey){
   }
 }
 
+export function viewBlock(dispatch, key){
+  console.log("editSheet");
+  const ref = FireBaseTools.getDatabaseReference('sheets/'+key);
+  ref.on(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetOnValue(snapshot) ); } );
+  return {
+    type: TYPES.SHEET_EDIT
+  }
+}
+
 export function editSheet(dispatch, key){
   console.log("editSheet");
   const ref = FireBaseTools.getDatabaseReference('sheets/'+key);
   ref.once(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetOnValue(snapshot) ); } );
+  // handle updates during editing
   return {
-    type: SHEET_EDIT
+    type: TYPES.SHEET_EDIT
+  }
+}
+
+export function displayBlock(dispatch, key){
+  console.log("displayBlock");
+  const ref = FireBaseTools.getDatabaseReference('sheets/'+key);
+  ref.on(FIREBASE_EVENTS.VALUE, (snapshot) => { dispatch( sheetBlockOnValue(snapshot) ); } );
+  return {
+    type: TYPES.SHEET_BLOCK_DISPLAY
+  }
+}
+
+export function updateSheet(dispatch, sheet, path, value){
+  console.log("updateSheet", sheet);
+  const ref = FireBaseTools.getDatabaseReference('sheets/'+sheet.key);
+  const newSheet = Immutable.fromJS(sheet).setIn(path.split("."), value).toJS();
+  ref.set(newSheet);
+
+  return {
+    type: TYPES.SHEET_UPDATE
+  }
+}
+
+export function sheetBlockOnValue(snapshot){
+  console.log("sheetBlockOnValue", snapshot);
+  return {
+    type: TYPES.SHEET_BLOCK_ON_VALUE,
+    payload: {
+      sheet: {
+        ...(snapshot.val()),
+        key: snapshot.key
+      }
+    }
   }
 }
 
 export function handleChange(key, path, value){
   console.log("handleChange", key, path, value);
   return {
-    type: SHEET_HANDLE_CHANGE,
+    type: TYPES.SHEET_HANDLE_CHANGE,
     payload: {
       key,
       path,
@@ -110,7 +142,7 @@ export function handleChange(key, path, value){
 export function sheetOnValue(snapshot){
   console.log("sheetOnValue", snapshot);
   return {
-    type: SHEET_EDIT_ON_VALUE,
+    type: TYPES.SHEET_EDIT_ON_VALUE,
     payload: {
       sheet: {
         ...(snapshot.val()),
@@ -125,7 +157,7 @@ export function saveUpdates(dispatch, sheet){
   const ref = FireBaseTools.getDatabaseReference('sheets/'+sheet.key);
   ref.set(sheet);
   return {
-    type: SHEET_SAVE_UPDATES,
+    type: TYPES.SHEET_SAVE_UPDATES,
     payload: {
       key: sheet.key
     }
@@ -135,7 +167,7 @@ export function saveUpdates(dispatch, sheet){
 export function cancelUpdates(key){
   console.log("cancelUpdates", key);
   return {
-    type: SHEET_CANCEL_UPDATES,
+    type: TYPES.SHEET_CANCEL_UPDATES,
     payload: {
       key
     }

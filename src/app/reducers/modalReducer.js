@@ -10,10 +10,8 @@ const initialState = {
 }
 
 export default function (state = initialState, action) {
-  console.log(action.type, action.payload);
   switch (action.type) {
     case SHOW_MODAL: {
-      console.log("SHOW_MODAL");
       return {
         ...state,
         isVisible: true,
@@ -22,7 +20,6 @@ export default function (state = initialState, action) {
       };
     }
     case CLOSE_MODAL: {
-      console.log("CLOSE_MODAL");
       return {
         ...state,
         isVisible: false,

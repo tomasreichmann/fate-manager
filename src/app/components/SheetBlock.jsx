@@ -3,19 +3,14 @@ import { capitalizeFirstLetter as capFirst, seq, getIn, intersperse } from '../u
 import Input from './Input';
 import Checkbox from './Checkbox';
 
-function getInput(type, path, data, def){
-  const val = def || getIn(data, path);
-  return <Input type={type} handleChange={handleChange} val={val} />;
-};
 
-function handleChange(newVal){
-  def = def || type === "checkbox" ? false : "";
-  let character = data.viewData.id !== undefined && data.characters.find( (item) => ( item.id === data.viewData.id ) ) || {};
-  // TODO handle change
-}
+export default function SheetBlock({ template, dictionary: text, handleChange = ()=>{}, ...sheet }){
+  const { name, aspects = [], stress = {}, skills = {}, refresh = 0, stunts = [], extras = [] } = sheet;
 
-export default function SheetBlock({ template, dictionary: text, onStressChange = ()=>{}, ...sheet }){
-  const { name, aspects, skills, refresh, stunts, extras } = sheet;
+  function getInput(type, path, data, def){
+    const val = def || getIn(data, path);
+    return <Input type={type} handleChange={handleChange.bind(this, path)} val={val} />;
+  };
 
   let aspectSpans = [];
   "main" in aspects && aspectSpans.push(<strong className="SheetBlock-aspects-main" key="SheetBlock-aspects-main" >{ aspects.main }</strong>);
@@ -62,16 +57,17 @@ export default function SheetBlock({ template, dictionary: text, onStressChange 
   </div> : null;
 
   const stressBlock = template.stress && template.stress.length ? (
-    <div className="SheetBlock-stress" >{template.stress.map( (stress)=>{
-      let maxStress = stress.def;
-      if(stress.skill in skills){
-        maxStress = maxStress + (skills[stress.skill] >= 3 ? 2 : 1);
+    <div className="SheetBlock-stress" >{template.stress.map( (stressLane)=>{
+      let maxStress = stressLane.def;
+      if(stressLane.skill in skills){
+        maxStress = maxStress + (skills[stressLane.skill] >= 3 ? 2 : 1);
       }
-      return <div className="stressLane" key={"stressLane-"+stress.label} ><h2><span>{text[stress.label]}</span> <span className="SheetBlock-note">({text[stress.skill]})</span></h2>
-        <div className="stress">
-        { seq(stress.count).map( (stressBox, index)=>(
-          <Checkbox key={"stressBox-"+index} label={ <span className="SheetBlock-superscript" >{index+1}</span> } disabled={index >= maxStress} />
-        ) ) }
+      return <div className="stressLane" key={"stressLane-"+stressLane.label} ><h2><span>{text[stressLane.label]}</span> <span className="SheetBlock-note">({text[stressLane.skill]})</span></h2>
+        <div className="stressBox">
+        { seq(stressLane.count).map( (stressBox, index)=>{
+          const path = "stress." + stressLane.key + "." + index;
+          return <Checkbox val={getIn(sheet, path)} handleChange={handleChange.bind(this, path)} key={"stressBox-"+index} label={ <span className="SheetBlock-superscript" >{index+1}</span> } disabled={index >= maxStress} />
+        }) }
         </div>
       </div>
     } )}</div>
