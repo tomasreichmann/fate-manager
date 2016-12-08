@@ -25,19 +25,19 @@ class SheetBlockView extends Component {
   render() {
     const sheets = this.props.sheetListState.sheets;
     const sheetKey = this.props.params.sheetKey;
-    const sheet = this.props.sheetDetailState.sheet;
+    const sheet = this.props.sheetEditState.unsaved[sheetKey];
     const template = sheet ? this.props.templates[sheet.template] : null;
     const modal = this.props.modalState.isVisible ? "display modal" : null;
     const text = this.props.dictionary;
 
-    const sheetDetail = sheet ? (<div className="SheetBlockView" >
+    const sheetBlock = sheet ? (
       <SheetBlock {...sheet} dictionary={this.props.dictionary} template={template}></SheetBlock>
-    </div>) : null;
+    ) : null;
 
-    return <div>
+    return <div className="SheetBlockView" >
       { modal }
       <Loading show={!sheet} >Loading...</Loading>
-      { sheetDetail }
+      { sheetBlock }
       <hr />
       { sheet ? <Link className="btn btn-primary" to={"/edit/" + sheet.key}>{ capFirst(text.edit) }</Link> : null }
     </div>;
@@ -59,7 +59,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     sheetListState: state.sheetList,
-    sheetDetailState: state.sheetDetail,
+    sheetEditState: state.sheetEdit,
     dictionary: state.dictionary[state.config.language],
     templates: state.template.map,
     modalState: state.modal

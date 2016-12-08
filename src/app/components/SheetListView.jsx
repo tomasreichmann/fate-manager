@@ -29,7 +29,7 @@ class SheetListView extends Component {
           { sheets.map( (item)=>( <div className="SheetList-item" key={item.key} >
             <div className="SheetList-item-title" ><Link to={ "/block/" + item.key } >{item.name}</Link></div>
             <div className="SheetList-item-actions" >
-              <button className="edit button" onClick={ editCharacter.bind(this, item.key) } >{text.edit}</button>
+              <Link className="edit button" to={'/edit/'+encodeURIComponent(item.key)} >{text.edit}</Link>
               <button className="delete button button-danger" onClick={ displayDeleteCharacterConfirmation.bind(this, item.key) } >&times;</button>
             </div>
           </div> ) ) }
@@ -47,11 +47,6 @@ SheetListView.contextTypes = {
 
 function displayDeleteCharacterConfirmation(id){
   console.log("displayDeleteCharacterConfirmation", id);
-}
-
-function editCharacter(key){
-  this.context.router.push('/edit/' + encodeURIComponent(key))
-  console.log("editCharacter", key);
 }
 
 function newCharacter(){

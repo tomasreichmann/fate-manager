@@ -7,7 +7,10 @@ import {
   SHEETS_ON_CHILD_CHANGED,
   SHEETS_ON_CHILD_MOVED,
   SHEET_EDIT,
+  SHEET_HANDLE_CHANGE,
   SHEET_EDIT_ON_VALUE,
+  SHEET_SAVE_UPDATES,
+  SHEET_CANCEL_UPDATES,
 } from './types';
 
 const FIREBASE_EVENTS = {
@@ -92,6 +95,18 @@ export function editSheet(dispatch, sheetKey){
   }
 }
 
+export function handleChange(key, path, value){
+  console.log("handleChange", key, path, value);
+  return {
+    type: SHEET_HANDLE_CHANGE,
+    payload: {
+      key,
+      path,
+      value
+    }
+  }
+}
+
 export function sheetOnValue(snapshot){
   console.log("sheetOnValue", snapshot);
   return {
@@ -101,6 +116,26 @@ export function sheetOnValue(snapshot){
         ...(snapshot.val()),
         key: snapshot.key
       }
+    }
+  }
+}
+
+export function saveUpdates(dispatch, key){
+  console.log("saveUpdates", key);
+  return {
+    type: SHEET_SAVE_UPDATES,
+    payload: {
+      key
+    }
+  }
+}
+
+export function cancelUpdates(dispatch, key){
+  console.log("cancelUpdates", key);
+  return {
+    type: SHEET_CANCEL_UPDATES,
+    payload: {
+      key
     }
   }
 }

@@ -4,16 +4,14 @@ import Input from './Input';
 import Checkbox from './Checkbox';
 import Select from './Select';
 
-function getInput(type, path, data, def){
-  const val = def || getIn(data, path);
-  return <Input type={type} handleChange={handleChange} val={val} />;
-};
 
-function handleChange(newVal){
-  console.log("new val", newVal);
-}
+export default function SheetEditor({ template, dictionary: text, handleChange = ()=>{}, ...sheet }){
 
-export default function SheetEditor({ template, dictionary: text, onStressChange = ()=>{}, ...sheet }){
+  function getInput(type, path, data, def){
+    const val = def || getIn(data, path);
+    return <Input type={type} handleChange={handleChange.bind(this, path)} val={val} />;
+  };
+
   const { name, aspects, skills, refresh, stunts, extras } = sheet;
 
   const bonusConsequences = (template.consequences.skills.reduce((maxLevel, skill)=>(
@@ -41,15 +39,15 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
       const levelSkills = (skillsPerLevel[level] || []).sort( (skillA, skillB)=>(
         text[skillA] > text[skillB]
       ) );
-      return <div className="row" >
+      return <div className="row" key={ "skillLevel-"+level }>
         { levelSkills.map( (skill) => {
           const inputState = '';
           const currentPath = 'skills.'+skill;
-          return <div className="col-xs-12 col-sm-2">
+          return <div className="col-xs-12 col-sm-2" key={ "skill-"+skill }>
             <Select className={inputState} options={ skillOptions } handleChange={ handleChange.bind(this, skill, level) } value={skill} ></Select>
           </div>;
         }) }
-        { levelSkills.length < template.skillLevels.length ? <div className="col-xs-12 col-sm-2">
+        { levelSkills.length < template.skillLevels.length ? <div className="col-xs-12 col-sm-2" key="skill-more" >
           <Select options={ skillOptions } handleChange={ handleChange.bind(this, null, level) } value={null} ></Select>
         </div> : null }
       </div>;
@@ -106,32 +104,7 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
       </div>
       <div className="col-xs-12 col-sm-7 skills">
         <h2>{text.skills}</h2>
-
         { skillBlock }
-
-        { false && seq(template.skillLevels).reverse().map( (level) =>{
-          return <div className="row">
-            <div className="col-xs-12 col-sm-2">{template.challengeLevels[level]}&nbsp;(+{level+1})</div>
-            { seq(template.skillsPerLevel).map( (column)=>{
-              let currentPath = "skills.level"+(level+1)+".column"+(column+1);
-              let val = getIn(sheet, currentPath);
-              let inputState = "skill-valid";
-              let title;
-              if( level !== 0 ){
-                let lowerSkillCount = Immutable.fromJS( getIn(sheet,  "skills.level"+(level) ) || {} ).toArray().filter( (val)=>( !!val ) ).length;
-                if( column >= lowerSkillCount) {
-                  if(!!val){
-                    inputState = "skill-invalid";
-                    title = "This exceeds maximum number of skills on this level";
-                  } else {
-                    inputState = "skill-locked";
-                    title = "Maximum number of skills on this level reached";
-                  }
-                }
-              }
-              return <div className="col-xs-12 col-sm-2"><label className={"input-wrap " + inputState} title={title} >{getInput("text", currentPath, sheet)}<div className="skill-list" > {[text.clear].concat(template.skillList).map( (skill)=>( <button onClick={ fillSkill.bind({ level: "level"+(level+1), column: "column"+(column+1), skill: (skill === text.clearText ? "" : skill), sheet}) } >{skill}</button> ) )}</div></label></div>
-            } ) }
-          </div> } ) }
       </div>
     </div>
     <div className="row mb">
@@ -140,15 +113,15 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
     </div>
     <div className="row">
       <div className="col-xs-12 col-sm-4">
-        { template.stress.map( (stress)=>{
+        { template.stress.map( (stress, index)=>{
           let maxStress = stress.def;
           if(stress.skill in skills){
             maxStress = maxStress + (skills[stress.skill] >= 3 ? 2 : 1);
           }
-          return <div className="stress-lane" ><h2>{stress.label} <span className="note">({stress.skill})</span></h2>
+          return <div className="stress-lane" key={ "stressLane-"+index } ><h2>{stress.label} <span className="note">({stress.skill})</span></h2>
             <div className="stress">
             { seq(stress.count).map( (stressBox, index)=>(
-              <label className={ "checkbox" + ((index >= maxStress) ? " disabled" : "") } ><span><i className="superscript">{index+1}</i></span>{getInput("checkbox", "stress."+stress.key+"."+(index+1), sheet)}<s></s></label>
+              <label className={ "checkbox" + ((index >= maxStress) ? " disabled" : "") } key={ "stress-"+index } ><span><i className="superscript">{index+1}</i></span>{getInput("checkbox", "stress."+stress.key+"."+(index+1), sheet)}<s></s></label>
             ) ) }
             </div>
           </div>
@@ -157,7 +130,7 @@ export default function SheetEditor({ template, dictionary: text, onStressChange
       <div className="col-xs-12 col-sm-8 consequences">
         <h2>{text.consequences}</h2>
         <div>{template.consequences.list.map( (consequence, index)=>(
-          <label key={consequence.key} className={"input-wrap" + (index >= maxConsequences ? " disabled" : "")}><i className="superscript" >{consequence.val}</i><span>{consequence.label}</span>{getInput("text",consequence.key, sheet)}</label>
+          <label key={consequence.key} className={"input-wrap" + (index >= maxConsequences ? " disabled" : "")}><i className="superscript" >{consequence.val}</i><span>{text[consequence.label]}</span>{getInput("text",consequence.key, sheet)}</label>
           ) )}</div>
       </div>
     </div>

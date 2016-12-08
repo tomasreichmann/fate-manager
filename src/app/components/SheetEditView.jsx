@@ -3,44 +3,62 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchUser } from '../actions/firebase_actions';
-import { syncSheets, editSheet } from '../actions/sheet';
+import { syncSheets, editSheet, cancelUpdates, saveUpdates, handleChange } from '../actions/sheet';
 import { capitalizeFirstLetter as capFirst } from '../utils/utils';
 import SheetEditor from './SheetEditor';
 import Loading from './Loading';
 
 class SheetEditView extends Component {
 
+  constructor(props) {
+    super(props);
+    this.sheetKey = this.props.params.sheetKey;
+  }
+
   componentWillMount() {
-    // TODO: get id from path
-    const sheetKey = this.props.params.sheetKey;
     this.props.fetchUser().then( ()=>{
-      this.props.editSheet(sheetKey);
+      return this.props.editSheet(this.sheetKey, this.sheet);
     } );
   }
 
   render() {
-    const sheets = this.props.sheetListState.sheets;
-    const sheetKey = this.props.params.sheetKey;
-    const sheet = this.props.sheetDetailState.sheet;
-    const template = sheet ? this.props.templates[sheet.template] : null;
-    console.log("SheetEditView", sheetKey, 'props', this.props);
-    console.log("SheetEditView sheet", sheet);
-    console.log("SheetEditView template", template);
-    let modal = this.props.modalState.isVisible ? "display modal" : null;
-    let text = this.props.dictionary;
+    const text = this.props.dictionary;
+    const sheet = this.props.sheet;
+    const template = this.props.template;
 
-    const sheetDetail = sheet ? (<div className="SheetDetail" >
-      <SheetEditor {...sheet} dictionary={this.props.dictionary} template={template}></SheetEditor>
-    </div>) : null;
+    console.log("render unsaved sheet", sheet);
 
-    return <div>
-      { modal }
+    const sheetEditorBlock = sheet ? (
+      <SheetEditor {...sheet} dictionary={this.props.dictionary} template={template} handleChange={this.handleChange.bind(this, this.sheetKey)} ></SheetEditor>
+    ) : null;
 
-      { sheetDetail }
+    return <div className="SheetEditView" >
+      { this.modal }
       <Loading show={!sheet} >Loading...</Loading>
+      { sheetEditorBlock }
       <hr />
-      { sheet ? <Link className="btn btn-primary" to={"/block/" + sheet.key}>{ capFirst(text.viewAsBlock) }</Link> : null }
+      { sheet ? <div className="SheetEditView-buttons">
+        <button key="button-cancel" className="btn btn-danger" onClick={this.cancel.bind(this, this.sheetKey)} >{ capFirst(text.cancel) }</button>
+        <button key="button-save" className="btn btn-primary" onClick={this.save.bind(this, this.sheetKey)} >{ capFirst(text.save) }</button>
+      </div> : null }
     </div>;
+  }
+
+  cancel(sheetKey){
+    console.log("cancel", sheetKey);
+    this.props.cancelUpdates(sheetKey);
+    this.context.router.push('/');
+  }
+
+  save(sheetKey){
+    console.log("save", sheetKey);
+    this.props.saveUpdates(sheetKey);
+    this.context.router.push('/block/'+sheetKey);
+  }
+
+  handleChange(key, path, value){
+    console.log("handleChange", arguments);
+    this.props.handleChange(key, path, value)
   }
 }
 
@@ -51,18 +69,25 @@ SheetEditView.contextTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     syncSheets: syncSheets.bind(this, dispatch),
-    editSheet: editSheet.bind(this, dispatch),
+    editSheet: editSheet.bind(this, dispatch ),
+    cancelUpdates: cancelUpdates.bind(this, dispatch),
+    saveUpdates: saveUpdates.bind(this, dispatch),
+    handleChange,
     fetchUser
   }, dispatch);
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const sheet = state.sheetEdit.unsaved[ownProps.params.sheetKey];
   return {
+    sheet,
+    template: sheet ? state.template.map[sheet.template] : null,
     sheetListState: state.sheetList,
-    sheetDetailState: state.sheetDetail,
+    sheetEditState: state.sheetEdit,
     dictionary: state.dictionary[state.config.language],
     templates: state.template.map,
-    modalState: state.modal
+    modalState: state.modal,
+    modal: state.modal.isVisible ? "display modal" : null // TODO
   };
 }
 
