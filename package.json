@@ -11,7 +11,6 @@
     "test": "./node_modules/.bin/eslint src && ./node_modules/.bin/mocha --compilers js:babel-core/register --require ./test/test_helper.js --recursive ./test",
     "test:watch": "npm run test -- --watch",
     "lint": "./node_modules/.bin/eslint src",
-    "heroku-postbuild": "./node_modules/.bin/webpack -p --config ./webpack/webpack-prod.config.js --progress"
   },
   "engines": {
     "node": "7.0.0"
