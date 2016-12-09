@@ -5,16 +5,16 @@
     display: flex;
 
     &:hover {
-        background-color: #f2f2f2;
+      background-color: #f2f2f2;
     }
 
     &-title {
-        flex: 1 0 auto;
-        font-weight: bold;
+      flex: 1 0 auto;
+      font-weight: bold;
     }
 
     &-actions .button + .button {
-        margin-left: 10px;
+      margin-left: 10px;
     }
   }
 }
